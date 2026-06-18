@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flexbox Notes — Everything You Need to Know</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & VARIABLES ===== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --green:        hsl(171, 66%, 44%);
+      --green-light:  hsl(171, 66%, 94%);
+      --green-dark:   hsl(171, 66%, 36%);
+      --blue:         hsl(240, 100%, 60%);
+      --blue-light:   hsl(233, 100%, 96%);
+      --blue-dark:    hsl(233, 100%, 59%);
+      --orange:       hsl(28, 90%, 55%);
+      --orange-light: hsl(28, 90%, 95%);
+      --red:          hsl(0, 72%, 55%);
+      --red-light:    hsl(0, 72%, 96%);
+      --dark:         hsl(210, 10%, 33%);
+      --gray:         hsl(201, 11%, 66%);
+      --gray-light:   hsl(201, 11%, 92%);
+      --bg:           hsl(210, 20%, 98%);
+      --surface:      #ffffff;
+      --code-bg:      hsl(220, 18%, 14%);
+      --radius:       0.75rem;
+      --shadow:       0 4px 24px hsla(210, 10%, 33%, 0.08);
+      --max-width:    820px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Bai Jamjuree', system-ui, sans-serif;
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--dark);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code, pre {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 0.875em;
+    }
+
+    code {
+      background: var(--gray-light);
+      padding: 0.15em 0.45em;
+      border-radius: 0.35rem;
+      color: var(--blue-dark);
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    a:hover {
+      color: var(--blue-dark);
+    }
+
+    strong {
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    /* ===== HEADER ===== */
+    .page-header {
+      background: linear-gradient(135deg, var(--blue) 0%, hsl(250, 100%, 50%) 100%);
+      color: #fff;
+      text-align: center;
+      padding: 3.5rem 1.5rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 80%, hsla(171, 66%, 44%, 0.25) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, hsla(0, 0%, 100%, 0.12) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    .page-header h1 {
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.5rem;
+      position: relative;
+    }
+
+    .page-header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      max-width: 36ch;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* ===== TABLE OF CONTENTS ===== */
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 0.75rem;
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--gray-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px hsla(210, 10%, 33%, 0.06);
+    }
+
+    .toc a {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--dark);
+      padding: 0.4rem 0.85rem;
+      border-radius: 2rem;
+      background: var(--bg);
+      border: 1px solid var(--gray-light);
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+
+    .toc a:hover {
+      background: var(--blue-light);
+      border-color: var(--blue);
+      color: var(--blue-dark);
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    main {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+    }
+
+    .note-section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 2rem 2.25rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid hsla(201, 11%, 66%, 0.2);
+    }
+
+    .note-section h2 {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--blue-light);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .note-section h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--blue-dark);
+      margin: 2rem 0 0.65rem;
+    }
+
+    .note-section h3:first-of-type {
+      margin-top: 0.5rem;
+    }
+
+    .ref-table + h3 {
+      margin-top: 1.5rem;
+    }
+
+    .note-section p {
+      color: hsl(210, 10%, 45%);
+      margin-bottom: 1rem;
+    }
+
+    .note-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ===== LABELS ===== */
+    .label {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.25rem 0.65rem;
+      border-radius: 2rem;
+      vertical-align: middle;
+    }
+
+    .label--parent {
+      background: var(--blue-light);
+      color: var(--blue-dark);
+    }
+
+    .label--child {
+      background: var(--green-light);
+      color: var(--green-dark);
+    }
+
+    /* ===== CODE BLOCKS ===== */
+    pre {
+      background: var(--code-bg);
+      color: hsl(220, 14%, 80%);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius);
+      overflow-x: auto;
+      margin: 1rem 0 1.5rem;
+      line-height: 1.65;
+      font-size: 0.82rem;
+      border: 1px solid hsl(220, 14%, 22%);
+    }
+
+    pre .selector { color: hsl(171, 55%, 65%); }
+    pre .keyword  { color: hsl(280, 65%, 75%); }
+    pre .value    { color: hsl(45, 90%, 70%); }
+    pre .comment  { color: hsl(220, 10%, 48%); font-style: italic; }
+
+    /* ===== CALLOUTS ===== */
+    .tip, .warning {
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius);
+      margin: 1.25rem 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      border-left: 4px solid;
+    }
+
+    .tip {
+      background: var(--green-light);
+      border-left-color: var(--green);
+      color: hsl(171, 40%, 28%);
+    }
+
+    .warning {
+      background: var(--red-light);
+      border-left-color: var(--red);
+      color: hsl(0, 50%, 32%);
+    }
+
+    .tip strong, .warning strong {
+      color: inherit;
+    }
+
+    /* ===== PROPERTY CARDS ===== */
+    .prop-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .prop-card {
+      flex: 1 1 220px;
+      background: var(--blue-light);
+      border-left: 4px solid var(--blue);
+      padding: 1.15rem 1.25rem;
+      border-radius: var(--radius);
+    }
+
+    .prop-card strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+      color: var(--blue-dark);
+    }
+
+    .prop-card p {
+      font-size: 0.9rem;
+      margin: 0;
+      color: hsl(233, 40%, 35%);
+    }
+
+    .prop-card.green {
+      background: var(--green-light);
+      border-left-color: var(--green);
+    }
+
+    .prop-card.green strong { color: var(--green-dark); }
+    .prop-card.green p { color: hsl(171, 40%, 28%); }
+
+    .prop-card.orange {
+      background: var(--orange-light);
+      border-left-color: var(--orange);
+    }
+
+    .prop-card.orange strong { color: hsl(28, 70%, 35%); }
+    .prop-card.orange p { color: hsl(28, 50%, 30%); }
+
+    /* ===== DEMO BOXES ===== */
+    .demo-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray);
+      margin: 1.25rem 0 0.5rem !important;
+    }
+
+    .demo-box {
+      background: hsl(220, 18%, 96%);
+      border: 2px dashed var(--gray-light);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .demo-item {
+      background: var(--blue);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.6rem 1rem;
+      border-radius: 0.4rem;
+      text-align: center;
+      min-width: 3.5rem;
+      box-shadow: 0 2px 0 var(--blue-dark);
+    }
+
+    /* flex-direction demos */
+    .demo--row {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+    }
+
+    .demo--col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: flex-start;
+    }
+
+    /* justify-content demos */
+    .demo--jc-start,
+    .demo--jc-center,
+    .demo--jc-end,
+    .demo--jc-sb,
+    .demo--jc-sa,
+    .demo--jc-se {
+      display: flex;
+      gap: 0;
+    }
+
+    .demo--jc-start  { justify-content: flex-start; }
+    .demo--jc-center { justify-content: center; }
+    .demo--jc-end    { justify-content: flex-end; }
+    .demo--jc-sb     { justify-content: space-between; }
+    .demo--jc-sa     { justify-content: space-around; }
+    .demo--jc-se     { justify-content: space-evenly; }
+
+    /* align-items demos */
+    .demo--ai {
+      display: flex;
+      gap: 0.5rem;
+      height: 100px;
+    }
+
+    .demo--ai-start  { align-items: flex-start; }
+    .demo--ai-center { align-items: center; }
+    .demo--ai-end    { align-items: flex-end; }
+
+    /* flex-wrap demo */
+    .demo--wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .demo--wrap .demo-item {
+      flex: 1 1 80px;
+    }
+
+    /* perfect centering demo */
+    .demo--center-both {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 140px;
+    }
+
+    /* nav demo */
+    .demo--nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+      padding: 0.85rem 1.25rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 8px hsla(210, 10%, 33%, 0.08);
+    }
+
+    .demo--nav .logo {
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 1.1rem;
+    }
+
+    .demo--nav .links {
+      display: flex;
+      gap: 1.25rem;
+    }
+
+    .demo--nav .links a {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--gray);
+    }
+
+    .demo--nav .links a:hover {
+      color: var(--blue);
+    }
+
+    /* sidebar demo */
+    .demo--sidebar {
+      display: flex;
+      gap: 0.75rem;
+      min-height: 100px;
+    }
+
+    .demo--sidebar .sidebar {
+      flex: 0 0 80px;
+      background: var(--green);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.75rem;
+      border-radius: 0.4rem;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .demo--sidebar .content {
+      flex: 1;
+      background: var(--blue-light);
+      color: var(--blue-dark);
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-radius: 0.4rem;
+      display: flex;
+      align-items: center;
+    }
+
+    /* ===== REFERENCE TABLES ===== */
+    .ref-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 1rem 0 1.5rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 4px hsla(210, 10%, 33%, 0.06);
+    }
+
+    .ref-table thead {
+      background: linear-gradient(135deg, var(--blue) 0%, hsl(250, 99%, 47%) 100%);
+      color: #fff;
+    }
+
+    .ref-table th {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .ref-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--gray-light);
+      vertical-align: top;
+      color: hsl(210, 10%, 45%);
+    }
+
+    .ref-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .ref-table tbody tr:nth-child(even) {
+      background: hsl(210, 20%, 98%);
+    }
+
+    .ref-table tbody tr:hover {
+      background: var(--blue-light);
+    }
+
+    .ref-table td:first-child {
+      font-weight: 600;
+      color: var(--dark);
+      white-space: nowrap;
+    }
+
+    .ref-table code {
+      font-size: 0.8em;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 600px) {
+      .page-header {
+        padding: 2.5rem 1rem 2rem;
+      }
+
+      .page-header h1 {
+        font-size: 1.75rem;
+      }
+
+      .toc {
+        padding: 0.85rem 1rem;
+        gap: 0.4rem;
+      }
+
+      .toc a {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.65rem;
+      }
+
+      main {
+        padding: 1.25rem 1rem 3rem;
+      }
+
+      .note-section {
+        padding: 1.5rem 1.25rem;
+      }
+
+      pre {
+        font-size: 0.75rem;
+        padding: 1rem;
+      }
+
+      .ref-table {
+        font-size: 0.8rem;
+      }
+
+      .ref-table th,
+      .ref-table td {
+        padding: 0.6rem 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="page-header">
+  <h1> Flexbox — Complete Notes</h1>
+  <p>Everything you need to know about CSS Flexible Box Layout</p>
+</header>
+
+<!-- TABLE OF CONTENTS -->
+<nav class="toc">
+  <a href="#what-is">What is Flexbox?</a>
+  <a href="#terminology">Terminology</a>
+  <a href="#container">Container Properties</a>
+  <a href="#items">Item Properties</a>
+  <a href="#patterns">Common Patterns</a>
+  <a href="#quick-ref">Quick Reference</a>
+  <a href="#vs-grid">Flex vs Grid</a>
+</nav>
+
+<main>
+
+  <!-- ================================================ -->
+  <!-- 1. WHAT IS FLEXBOX                               -->
+  <!-- ================================================ -->
+  <section class="note-section" id="what-is">
+    <h2>1. What is Flexbox?</h2>
+
+    <p>Flexbox (Flexible Box Layout) is a CSS layout method that makes it easy to arrange items in a <strong>row or column</strong>, distribute space between them, and align them — even when their sizes are unknown or dynamic.</p>
+
+    <p>You turn any element into a <strong>flex container</strong> with one line:</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+}</pre>
+
+    <p>That's it. Every <strong>direct child</strong> of that element instantly becomes a <strong>flex item</strong> and lines up in a row by default.</p>
+
+    <div class="tip">
+      <strong>Key idea:</strong> Flexbox works on <em>one axis at a time</em> — either a row (horizontal) or a column (vertical). For two-dimensional layouts, use CSS Grid instead.
+    </div>
+  </section>
+
+
+  <!-- ================================================ -->
+  <!-- 2. TERMINOLOGY                                   -->
+  <!-- ================================================ -->
+  <section class="note-section" id="terminology">
+    <h2>2. Terminology</h2>
+
+    <p>Understanding the two axes is crucial — all flexbox properties refer to them.</p>
+
+    <pre><span class="comment">/* Main axis: the direction items are placed (row → horizontal, column → vertical) */</span>
+<span class="comment">/* Cross axis: perpendicular to the main axis                                    */</span>
+
+<span class="selector">.container</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;             <span class="comment">/* → main axis is horizontal by default */</span>
+  <span class="keyword">flex-direction</span>: <span class="value">row</span>;    <span class="comment">/* main axis = left → right             */</span>
+}
+
+<span class="comment">/* flex-direction: column → main axis becomes top → bottom */</span></pre>
+
+    <div class="prop-grid">
+      <div class="prop-card">
+        <strong>Flex Container</strong>
+        <p>The parent element with <code>display: flex</code>. Controls how children are arranged.</p>
+      </div>
+      <div class="prop-card green">
+        <strong>Flex Items</strong>
+        <p>The direct children of a flex container. Automatically become flexible.</p>
+      </div>
+      <div class="prop-card orange">
+        <strong>Main Axis</strong>
+        <p>The primary direction of layout. Set by <code>flex-direction</code>.</p>
+      </div>
+      <div class="prop-card">
+        <strong>Cross Axis</strong>
+        <p>Perpendicular to the main axis. If main axis is row → cross axis is column.</p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ================================================ -->
+  <!-- 3. CONTAINER PROPERTIES (PARENT)                 -->
+  <!-- ================================================ -->
+  <section class="note-section" id="container">
+    <h2>3. Container Properties <span class="label label--parent">Goes on the parent</span></h2>
+
+    <!-- flex-direction -->
+    <h3>flex-direction</h3>
+    <p>Sets which direction the <strong>main axis</strong> runs — and therefore which way items are placed.</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">flex-direction</span>: <span class="value">row</span>;           <span class="comment">/* ← default: left to right    */</span>
+  <span class="keyword">flex-direction</span>: <span class="value">row-reverse</span>;   <span class="comment">/* right to left               */</span>
+  <span class="keyword">flex-direction</span>: <span class="value">column</span>;        <span class="comment">/* top to bottom               */</span>
+  <span class="keyword">flex-direction</span>: <span class="value">column-reverse</span>;<span class="comment">/* bottom to top               */</span>
+}</pre>
+
+    <p class="demo-label">flex-direction: row (default)</p>
+    <div class="demo-box demo--row">
+      <div class="demo-item">Item 1</div>
+      <div class="demo-item">Item 2</div>
+      <div class="demo-item">Item 3</div>
+    </div>
+
+    <p class="demo-label">flex-direction: column</p>
+    <div class="demo-box demo--col">
+      <div class="demo-item">Item 1</div>
+      <div class="demo-item">Item 2</div>
+      <div class="demo-item">Item 3</div>
+    </div>
+
+    <!-- justify-content -->
+    <h3>justify-content</h3>
+    <p>Aligns items along the <strong>main axis</strong>. Controls how leftover space is distributed.</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">justify-content</span>: <span class="value">flex-start</span>;    <span class="comment">/* pack at start (default)      */</span>
+  <span class="keyword">justify-content</span>: <span class="value">flex-end</span>;      <span class="comment">/* pack at end                  */</span>
+  <span class="keyword">justify-content</span>: <span class="value">center</span>;        <span class="comment">/* center in the container      */</span>
+  <span class="keyword">justify-content</span>: <span class="value">space-between</span>; <span class="comment">/* equal gaps BETWEEN items     */</span>
+  <span class="keyword">justify-content</span>: <span class="value">space-around</span>;  <span class="comment">/* equal space AROUND items     */</span>
+  <span class="keyword">justify-content</span>: <span class="value">space-evenly</span>;  <span class="comment">/* perfectly equal gaps         */</span>
+}</pre>
+
+    <p class="demo-label">flex-start</p>
+    <div class="demo-box demo--jc-start">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">center</p>
+    <div class="demo-box demo--jc-center">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">flex-end</p>
+    <div class="demo-box demo--jc-end">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">space-between</p>
+    <div class="demo-box demo--jc-sb">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">space-around</p>
+    <div class="demo-box demo--jc-sa">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">space-evenly</p>
+    <div class="demo-box demo--jc-se">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+
+    <!-- align-items -->
+    <h3>align-items</h3>
+    <p>Aligns items along the <strong>cross axis</strong> (perpendicular to the main axis).</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">align-items</span>: <span class="value">stretch</span>;     <span class="comment">/* fill the cross axis (default) */</span>
+  <span class="keyword">align-items</span>: <span class="value">flex-start</span>; <span class="comment">/* align to the start            */</span>
+  <span class="keyword">align-items</span>: <span class="value">center</span>;     <span class="comment">/* center on the cross axis      */</span>
+  <span class="keyword">align-items</span>: <span class="value">flex-end</span>;   <span class="comment">/* align to the end              */</span>
+  <span class="keyword">align-items</span>: <span class="value">baseline</span>;   <span class="comment">/* align text baselines          */</span>
+}</pre>
+
+    <p class="demo-label">align-items: flex-start</p>
+    <div class="demo-box demo--ai demo--ai-start">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">align-items: center</p>
+    <div class="demo-box demo--ai demo--ai-center">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+    <p class="demo-label">align-items: flex-end</p>
+    <div class="demo-box demo--ai demo--ai-end">
+      <div class="demo-item">A</div><div class="demo-item">B</div><div class="demo-item">C</div>
+    </div>
+
+    <!-- flex-wrap -->
+    <h3>flex-wrap</h3>
+    <p>By default, flex items all try to fit on one line. <code>flex-wrap: wrap</code> lets them break onto multiple lines.</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">flex-wrap</span>: <span class="value">nowrap</span>;        <span class="comment">/* all on one line (default)  */</span>
+  <span class="keyword">flex-wrap</span>: <span class="value">wrap</span>;          <span class="comment">/* wrap to next line          */</span>
+  <span class="keyword">flex-wrap</span>: <span class="value">wrap-reverse</span>;  <span class="comment">/* wrap in reverse order      */</span>
+}</pre>
+
+    <p class="demo-label">flex-wrap: wrap (resize the window to see items wrap)</p>
+    <div class="demo-box demo--wrap">
+      <div class="demo-item">Item 1</div>
+      <div class="demo-item">Item 2</div>
+      <div class="demo-item">Item 3</div>
+      <div class="demo-item">Item 4</div>
+      <div class="demo-item">Item 5</div>
+      <div class="demo-item">Item 6</div>
+    </div>
+
+    <!-- gap -->
+    <h3>gap (row-gap / column-gap)</h3>
+    <p>Sets consistent space <strong>between</strong> flex items — much cleaner than using margins.</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">gap</span>: <span class="value">1rem</span>;           <span class="comment">/* same gap for rows and columns  */</span>
+  <span class="keyword">gap</span>: <span class="value">1rem 2rem</span>;     <span class="comment">/* row-gap | column-gap           */</span>
+  <span class="keyword">row-gap</span>: <span class="value">1rem</span>;      <span class="comment">/* only vertical gaps             */</span>
+  <span class="keyword">column-gap</span>: <span class="value">2rem</span>;   <span class="comment">/* only horizontal gaps           */</span>
+}</pre>
+
+    <!-- align-content -->
+    <h3>align-content</h3>
+    <p>Like <code>justify-content</code> but for <strong>rows</strong> when flex-wrap is on and there are multiple lines. Has no effect on single-line flex containers.</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="keyword">align-content</span>: <span class="value">flex-start</span>;    <span class="comment">/* rows packed at top         */</span>
+  <span class="keyword">align-content</span>: <span class="value">center</span>;        <span class="comment">/* rows centered vertically   */</span>
+  <span class="keyword">align-content</span>: <span class="value">flex-end</span>;      <span class="comment">/* rows packed at bottom      */</span>
+  <span class="keyword">align-content</span>: <span class="value">space-between</span>; <span class="comment">/* space between rows         */</span>
+  <span class="keyword">align-content</span>: <span class="value">space-around</span>;  <span class="comment">/* space around rows          */</span>
+  <span class="keyword">align-content</span>: <span class="value">stretch</span>;       <span class="comment">/* rows stretch to fill       */</span>
+}</pre>
+
+    <!-- flex-flow shorthand -->
+    <h3>flex-flow (shorthand)</h3>
+    <p>Combines <code>flex-direction</code> and <code>flex-wrap</code> into one property.</p>
+
+    <pre><span class="selector">.container</span> {
+  <span class="comment">/* flex-flow: &lt;direction&gt; &lt;wrap&gt; */</span>
+  <span class="keyword">flex-flow</span>: <span class="value">row wrap</span>;         <span class="comment">/* most common combo            */</span>
+  <span class="keyword">flex-flow</span>: <span class="value">column nowrap</span>;     <span class="comment">/* column, no wrapping          */</span>
+}</pre>
+  </section>
+
+
+  <!-- ================================================ -->
+  <!-- 4. ITEM PROPERTIES (CHILDREN)                    -->
+  <!-- ================================================ -->
+  <section class="note-section" id="items">
+    <h2>4. Item Properties <span class="label label--child">Goes on the children</span></h2>
+
+    <!-- flex-grow -->
+    <h3>flex-grow</h3>
+    <p>Controls how much an item <strong>grows</strong> to fill available space. Default is <code>0</code> (don't grow). A value of <code>1</code> means "take up all remaining space". If multiple items have <code>flex-grow: 1</code>, they share the space equally.</p>
+
+    <pre><span class="selector">.item</span> {
+  <span class="keyword">flex-grow</span>: <span class="value">0</span>;   <span class="comment">/* don't grow (default)              */</span>
+  <span class="keyword">flex-grow</span>: <span class="value">1</span>;   <span class="comment">/* grow to fill remaining space       */</span>
+  <span class="keyword">flex-grow</span>: <span class="value">2</span>;   <span class="comment">/* grow twice as much as flex-grow: 1 */</span>
+}</pre>
+
+    <div class="tip">
+      <strong>Real-world use:</strong> Give a main content area <code>flex-grow: 1</code> next to a fixed-width sidebar. The content fills all remaining space automatically.
+    </div>
+
+    <!-- flex-shrink -->
+    <h3>flex-shrink</h3>
+    <p>Controls how much an item <strong>shrinks</strong> when there isn't enough space. Default is <code>1</code> (can shrink). Set to <code>0</code> to prevent an item from shrinking.</p>
+
+    <pre><span class="selector">.item</span> {
+  <span class="keyword">flex-shrink</span>: <span class="value">1</span>;   <span class="comment">/* shrinks if needed (default)     */</span>
+  <span class="keyword">flex-shrink</span>: <span class="value">0</span>;   <span class="comment">/* never shrinks — keeps its size  */</span>
+}</pre>
+
+    <!-- flex-basis -->
+    <h3>flex-basis</h3>
+    <p>Sets the <strong>initial size</strong> of an item before remaining space is distributed. Think of it as the "starting width" (or height in a column). Overrides <code>width</code> on the main axis.</p>
+
+    <pre><span class="selector">.item</span> {
+  <span class="keyword">flex-basis</span>: <span class="value">auto</span>;    <span class="comment">/* uses the item's width/content (default) */</span>
+  <span class="keyword">flex-basis</span>: <span class="value">200px</span>;  <span class="comment">/* start at 200px before growing/shrinking */</span>
+  <span class="keyword">flex-basis</span>: <span class="value">30%</span>;    <span class="comment">/* start at 30% of the container           */</span>
+  <span class="keyword">flex-basis</span>: <span class="value">0</span>;      <span class="comment">/* start at nothing — distribute from zero */</span>
+}</pre>
+
+    <!-- flex shorthand -->
+    <h3>flex (shorthand) ⭐ Most used</h3>
+    <p>Combines <code>flex-grow</code>, <code>flex-shrink</code>, and <code>flex-basis</code>. Use this instead of setting them individually.</p>
+
+    <pre><span class="selector">.item</span> {
+  <span class="comment">/* flex: grow  shrink  basis */</span>
+  <span class="keyword">flex</span>: <span class="value">1 1 auto</span>;    <span class="comment">/* can grow, can shrink, auto size      */</span>
+  <span class="keyword">flex</span>: <span class="value">0 0 200px</span>;  <span class="comment">/* fixed 200px — no grow, no shrink    */</span>
+  <span class="keyword">flex</span>: <span class="value">1</span>;           <span class="comment">/* shorthand for flex: 1 1 0           */</span>
+  <span class="keyword">flex</span>: <span class="value">auto</span>;        <span class="comment">/* shorthand for flex: 1 1 auto        */</span>
+  <span class="keyword">flex</span>: <span class="value">none</span>;        <span class="comment">/* shorthand for flex: 0 0 auto        */</span>
+}</pre>
+
+    <div class="warning">
+      <strong>Common gotcha:</strong> <code>flex: 1</code> sets <code>flex-basis: 0</code>, meaning items start from zero size. <code>flex: auto</code> sets <code>flex-basis: auto</code>, so items start from their content size. They look similar but behave differently.
+    </div>
+
+    <!-- align-self -->
+    <h3>align-self</h3>
+    <p>Overrides <code>align-items</code> for a <strong>single item</strong>. Lets you position one item differently from the rest.</p>
+
+    <pre><span class="selector">.special-item</span> {
+  <span class="keyword">align-self</span>: <span class="value">auto</span>;        <span class="comment">/* follow parent's align-items (default) */</span>
+  <span class="keyword">align-self</span>: <span class="value">flex-start</span>;  <span class="comment">/* align to start of cross axis          */</span>
+  <span class="keyword">align-self</span>: <span class="value">center</span>;      <span class="comment">/* center on cross axis                  */</span>
+  <span class="keyword">align-self</span>: <span class="value">flex-end</span>;    <span class="comment">/* align to end of cross axis            */</span>
+  <span class="keyword">align-self</span>: <span class="value">stretch</span>;     <span class="comment">/* stretch to fill cross axis            */</span>
+}</pre>
+
+    <!-- order -->
+    <h3>order</h3>
+    <p>Changes the <strong>visual order</strong> of items without changing the HTML. Default is <code>0</code>. Lower numbers appear first.</p>
+
+    <pre><span class="selector">.item-that-should-go-first</span> {
+  <span class="keyword">order</span>: <span class="value">-1</span>;   <span class="comment">/* moves before all order: 0 items */</span>
+}
+
+<span class="selector">.item-that-should-go-last</span> {
+  <span class="keyword">order</span>: <span class="value">1</span>;    <span class="comment">/* moves after all order: 0 items  */</span>
+}</pre>
+
+    <div class="tip">
+      <strong>Accessibility note:</strong> <code>order</code> only changes visual order — screen readers still follow the HTML source order. Use it carefully.
+    </div>
+  </section>
+
+
+  <!-- ================================================ -->
+  <!-- 5. COMMON PATTERNS                               -->
+  <!-- ================================================ -->
+  <section class="note-section" id="patterns">
+    <h2>5. Common Patterns</h2>
+
+    <!-- Perfect centering -->
+    <h3>Perfect centering (horizontal + vertical)</h3>
+    <p>The most famous flexbox trick — center anything inside a container with just 3 lines.</p>
+
+    <pre><span class="selector">.center-me</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">justify-content</span>: <span class="value">center</span>;   <span class="comment">/* center on main axis (horizontal)  */</span>
+  <span class="keyword">align-items</span>: <span class="value">center</span>;       <span class="comment">/* center on cross axis (vertical)   */</span>
+  <span class="keyword">height</span>: <span class="value">200px</span>;             <span class="comment">/* needs a height to center in!      */</span>
+}</pre>
+
+    <div class="demo-box demo--center-both">
+      <div class="demo-item">I am perfectly centered!</div>
+    </div>
+
+    <!-- Navigation bar -->
+    <h3>Navigation bar (logo left, links right)</h3>
+    <pre><span class="selector">.nav</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">justify-content</span>: <span class="value">space-between</span>;
+  <span class="keyword">align-items</span>: <span class="value">center</span>;
+  <span class="keyword">padding</span>: <span class="value">1rem 2rem</span>;
+}
+
+<span class="selector">.nav__links</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;     <span class="comment">/* nested flex for the links row */</span>
+  <span class="keyword">gap</span>: <span class="value">1.5rem</span>;
+}</pre>
+
+    <div class="demo-box">
+      <div class="demo--nav">
+        <span class="logo">MyApp</span>
+        <div class="links">
+          <a href="#">Home</a>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar layout -->
+    <h3>Sidebar layout (fixed sidebar, flexible content)</h3>
+    <pre><span class="selector">.layout</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">gap</span>: <span class="value">1rem</span>;
+}
+
+<span class="selector">.sidebar</span> {
+  <span class="keyword">flex</span>: <span class="value">0 0 200px</span>;  <span class="comment">/* fixed 200px — never grow or shrink */</span>
+}
+
+<span class="selector">.main-content</span> {
+  <span class="keyword">flex</span>: <span class="value">1</span>;            <span class="comment">/* take up all remaining space        */</span>
+}</pre>
+
+    <div class="demo-box">
+      <div class="demo--sidebar">
+        <div class="sidebar">Sidebar<br>80px fixed</div>
+        <div class="content">Main content — grows to fill remaining space</div>
+      </div>
+    </div>
+
+    <!-- Card grid -->
+    <h3>Responsive card grid (wraps automatically)</h3>
+    <pre><span class="selector">.cards</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">flex-wrap</span>: <span class="value">wrap</span>;
+  <span class="keyword">gap</span>: <span class="value">1.5rem</span>;
+}
+
+<span class="selector">.card</span> {
+  <span class="keyword">flex</span>: <span class="value">1 1 280px</span>;  <span class="comment">/* grow and shrink, minimum 280px wide */</span>
+  <span class="comment">/* Cards fill a row and wrap to next line when below 280px */</span>
+}</pre>
+
+    <!-- Button group -->
+    <h3>Button group</h3>
+    <pre><span class="selector">.btn-group</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">gap</span>: <span class="value">1rem</span>;
+  <span class="keyword">flex-wrap</span>: <span class="value">wrap</span>;         <span class="comment">/* stack buttons on small screens     */</span>
+  <span class="keyword">justify-content</span>: <span class="value">center</span>;  <span class="comment">/* center on all screen sizes         */</span>
+}</pre>
+
+    <!-- Vertical stacking -->
+    <h3>Vertical stack (column layout)</h3>
+    <pre><span class="selector">.stack</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">flex-direction</span>: <span class="value">column</span>;
+  <span class="keyword">gap</span>: <span class="value">1rem</span>;            <span class="comment">/* consistent spacing between items */</span>
+}
+
+<span class="comment">/* Stick footer at bottom (requires a height on the parent) */</span>
+<span class="selector">.page</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">flex-direction</span>: <span class="value">column</span>;
+  <span class="keyword">min-height</span>: <span class="value">100vh</span>;
+}
+
+<span class="selector">.page__footer</span> {
+  <span class="keyword">margin-top</span>: <span class="value">auto</span>;    <span class="comment">/* pushes footer to the bottom       */</span>
+}</pre>
+  </section>
+
+
+  <!-- ================================================ -->
+  <!-- 6. QUICK REFERENCE TABLE                         -->
+  <!-- ================================================ -->
+  <section class="note-section" id="quick-ref">
+    <h2>6. Quick Reference</h2>
+
+    <h3>Container Properties (parent)</h3>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Values</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>display</code></td>
+          <td><code>flex</code> | <code>inline-flex</code></td>
+          <td>Activates flexbox on the container</td>
+        </tr>
+        <tr>
+          <td><code>flex-direction</code></td>
+          <td><code>row</code> | <code>column</code> | <code>row-reverse</code> | <code>column-reverse</code></td>
+          <td>Sets the main axis direction</td>
+        </tr>
+        <tr>
+          <td><code>justify-content</code></td>
+          <td><code>flex-start</code> | <code>center</code> | <code>flex-end</code> | <code>space-between</code> | <code>space-around</code> | <code>space-evenly</code></td>
+          <td>Aligns items along the main axis</td>
+        </tr>
+        <tr>
+          <td><code>align-items</code></td>
+          <td><code>stretch</code> | <code>flex-start</code> | <code>center</code> | <code>flex-end</code> | <code>baseline</code></td>
+          <td>Aligns items along the cross axis</td>
+        </tr>
+        <tr>
+          <td><code>flex-wrap</code></td>
+          <td><code>nowrap</code> | <code>wrap</code> | <code>wrap-reverse</code></td>
+          <td>Controls whether items wrap to new lines</td>
+        </tr>
+        <tr>
+          <td><code>gap</code></td>
+          <td>any length value (e.g. <code>1rem</code>)</td>
+          <td>Space between flex items</td>
+        </tr>
+        <tr>
+          <td><code>align-content</code></td>
+          <td>same as justify-content</td>
+          <td>Aligns rows when wrapped (multi-line)</td>
+        </tr>
+        <tr>
+          <td><code>flex-flow</code></td>
+          <td><code>&lt;direction&gt; &lt;wrap&gt;</code></td>
+          <td>Shorthand for flex-direction + flex-wrap</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Item Properties (children)</h3>
+    <table class="ref-table">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Values</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>flex-grow</code></td>
+          <td>number (default <code>0</code>)</td>
+          <td>How much the item grows to fill space</td>
+        </tr>
+        <tr>
+          <td><code>flex-shrink</code></td>
+          <td>number (default <code>1</code>)</td>
+          <td>How much the item shrinks when short on space</td>
+        </tr>
+        <tr>
+          <td><code>flex-basis</code></td>
+          <td><code>auto</code> | length | <code>0</code></td>
+          <td>Starting size before grow/shrink apply</td>
+        </tr>
+        <tr>
+          <td><code>flex</code></td>
+          <td><code>&lt;grow&gt; &lt;shrink&gt; &lt;basis&gt;</code></td>
+          <td>Shorthand for all three above ⭐</td>
+        </tr>
+        <tr>
+          <td><code>align-self</code></td>
+          <td><code>auto</code> | <code>flex-start</code> | <code>center</code> | <code>flex-end</code> | <code>stretch</code></td>
+          <td>Override align-items for this item only</td>
+        </tr>
+        <tr>
+          <td><code>order</code></td>
+          <td>integer (default <code>0</code>)</td>
+          <td>Change visual order without changing HTML</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+
+  <!-- ================================================ -->
+  <!-- 7. FLEX VS GRID                                  -->
+  <!-- ================================================ -->
+  <section class="note-section" id="vs-grid">
+    <h2>7. Flexbox vs CSS Grid</h2>
+
+    <p>Both are powerful but solve different problems. The quick mental model:</p>
+
+    <div class="prop-grid">
+      <div class="prop-card">
+        <strong>Use Flexbox when...</strong>
+        <p>You are arranging items in <strong>one direction</strong> — either a row or a column. Great for navbars, button groups, centering content, card rows, and stacking items vertically.</p>
+      </div>
+      <div class="prop-card green">
+        <strong>Use Grid when...</strong>
+        <p>You need to control <strong>both rows and columns</strong> at the same time. Great for page layouts, image galleries, and any layout where you need precise two-dimensional placement.</p>
+      </div>
+    </div>
+
+    <pre><span class="comment">/* Flexbox — one axis, content-driven sizing */</span>
+<span class="selector">.flex-row</span> {
+  <span class="keyword">display</span>: <span class="value">flex</span>;
+  <span class="keyword">gap</span>: <span class="value">1rem</span>;
+}
+
+<span class="comment">/* Grid — two axes, explicit track sizing */</span>
+<span class="selector">.grid-layout</span> {
+  <span class="keyword">display</span>: <span class="value">grid</span>;
+  <span class="keyword">grid-template-columns</span>: <span class="value">1fr 2fr 1fr</span>;
+  <span class="keyword">gap</span>: <span class="value">1rem</span>;
+}</pre>
+
+    <div class="tip">
+      <strong>They work great together:</strong> Use Grid for the big page layout (header, sidebar, content, footer) and Flexbox for the small components within each section (nav links, button groups, card content).
+    </div>
+
+    <div class="tip">
+      <strong>Rule of thumb:</strong> "If I didn't have Flexbox, I'd need floats or inline-block → use Flexbox. If I need a table-like layout of rows and columns → use Grid."
+    </div>
+  </section>
+
+</main>
+
+</body>
+</html>
